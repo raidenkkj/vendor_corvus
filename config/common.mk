@@ -11,6 +11,9 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.error.receiver.system.apps=com.google.android.gms \
     ro.atrace.core.services=com.google.android.gms,com.google.android.gms.ui,com.google.android.gms.persistent
 
+PRODUCT_PACKAGES += \
+    NetworkStackOverlay
+
 # Additional props
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     dalvik.vm.debug.alloc=0 \
@@ -28,10 +31,13 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     persist.sys.wfd.virtual=0 \
     ro.input.video_enabled=false
 
+# SystemUI
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    dalvik.vm.systemuicompilerfilter=speed
+
 # Gapps
-ifeq ($(USE_GAPPS),true)
-$(call inherit-product-if-exists, vendor/google/gms/config.mk)
-$(call inherit-product, vendor/google/pixel/config.mk)
+ifeq ($(USE_GAPPS), true)
+$(call inherit-product, vendor/gapps/common/common-vendor.mk)
 
 PRODUCT_COPY_FILES += \
 $(call find-copy-subdir-files,*,vendor/corvus/prebuilt/product/usr/,$(TARGET_COPY_OUT_PRODUCT)/usr)
@@ -166,3 +172,10 @@ PRODUCT_PRODUCT_PROPERTIES += \
 PRODUCT_DEXPREOPT_SPEED_APPS += \
     SystemUI \
     Settings
+
+# Spoof fingerprint for Google Play Services and SafetyNet
+ifeq ($(PRODUCT_OVERRIDE_GMS_FINGERPRINT),)
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.build.gms_fingerprint=google/walleye/walleye:8.1.0/OPM1.171019.011/4448085:user/release-keys
+else
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += ro.build.gms_fingerprint=$(PRODUCT_OVERRIDE_GMS_FINGERPRINT)
+endif
